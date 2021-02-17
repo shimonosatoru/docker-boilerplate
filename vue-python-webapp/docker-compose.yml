@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+
+    client:
+        build:
+            context: ..
+            dockerfile: ./docker/node/Dockerfile
+        volumes:
+            - ../frontend:/usr/src/app
+        tty: true
+        stdin_open: true
+        ports:
+            - 8080:80
+        depends_on:
+            - db
+
+    api:
+        build:
+            context: ..
+            dockerfile: ./docker/python/Dockerfile
+        volumes:
+            - ../backend:/usr/src/app
+        tty: true
+        ports:
+            - 5000:5000
+        environment:
+            - TZ=Asia/Tokyo
+            - FLASK_APP=app/app.py
+            - FLASK_ENV=development
+        command: python3 app/app.py
+        depends_on:
+            - db
+    
+    db:
+        platform: linux/x86_64
+        image: mysql:5.7
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=hoge
+            - MYSQL_USER=root
+            - MYSQL_PASSWORD=root
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        volumes:
+            - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+            - data_hoge:/var/lib/mysql
+        ports:
+            - "3306:3306"
+
+volumes:
+    data_hoge:

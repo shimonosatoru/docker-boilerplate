@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    container_name: hoge_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=hoge
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - data_hoge:/var/lib/mysql
+    ports:
+      - "3306:3306"
+  python3:
+    restart: always
+    build: .
+    container_name: hoge_py
+    working_dir: '/root/'
+    tty: true
+    volumes:
+      - ./:/root/
+    links:
+      - db
+volumes:
+  data_hoge:
